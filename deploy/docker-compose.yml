@@ -9,9 +9,9 @@ services:
       - "1883:1883"   # MQTT
       - "9001:9001"   # WebSocket
     volumes:
-      - ./mosquitto/config:/mosquitto/config
-      - ./mosquitto/data:/mosquitto/data
-      - ./mosquitto/log:/mosquitto/log
+      - ./config:/mosquitto/config
+      - ./data:/mosquitto/data
+      - ./log:/mosquitto/log
     networks:
       - cmp-network
 
