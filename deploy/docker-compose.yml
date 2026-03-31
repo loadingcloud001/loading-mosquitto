@@ -3,7 +3,7 @@ version: '3.8'
 services:
   mosquitto:
     image: eclipse-mosquitto:latest
-    container_name: mosquitto
+    container_name: loading-mosquitto
     restart: unless-stopped
     ports:
       - "1883:1883"   # MQTT
