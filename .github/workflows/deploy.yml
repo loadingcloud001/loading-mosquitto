@@ -25,7 +25,7 @@ jobs:
       - name: Deploy to droplet
         run: |
           ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes root@157.245.148.63 "mkdir -p /opt/mosquitto"
-          scp -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes docker-compose.yml root@157.245.148.63:/opt/mosquitto/
+          scp -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes deploy/docker-compose.yml root@157.245.148.63:/opt/mosquitto/
           ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes root@157.245.148.63 << 'ENDSSH'
             cd /opt/mosquitto
             docker-compose down 2>/dev/null || true
