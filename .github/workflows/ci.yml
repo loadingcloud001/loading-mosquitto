@@ -16,7 +16,7 @@ jobs:
 
       - name: Validate docker-compose config
         run: |
-          docker compose config --quiet || docker-compose config --quiet
+          docker compose -f deploy/docker-compose.yml config --quiet
           echo "docker-compose.yml is valid"
 
       - name: Check for leaked secrets
