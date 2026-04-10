@@ -2,7 +2,8 @@ name: Deploy to Production
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -16,23 +17,46 @@ jobs:
       - name: Set up SSH key
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
         run: |
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H 157.245.148.63 >> ~/.ssh/known_hosts
+          ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
 
       - name: Deploy to droplet
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
         run: |
-          ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes root@157.245.148.63 "mkdir -p /opt/loading-mosquitto"
-          scp -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes deploy/docker-compose.yml root@157.245.148.63:/opt/loading-mosquitto/
-          ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes root@157.245.148.63 << 'ENDSSH'
-            cd /opt/loading-mosquitto
+          ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes $SSH_USER@$SSH_HOST "mkdir -p /opt/mosquitto"
+
+          # Upload docker-compose.yml
+          scp -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes docker-compose.yml $SSH_USER@$SSH_HOST:/opt/mosquitto/
+
+          # Upload .env if it exists
+          if [ -f .env ]; then
+            scp -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes .env $SSH_USER@$SSH_HOST:/opt/mosquitto/
+          fi
+
+          # Deploy - stop old container first, then start new
+          ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes $SSH_USER@$SSH_HOST << 'ENDSSH'
+            cd /opt/mosquitto
             docker-compose down 2>/dev/null || true
             docker-compose up -d
             docker-compose ps
           ENDSSH
 
-      - name: Verify deployment
+      - name: Health check
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
         run: |
-          ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes root@157.245.148.63 "docker ps --filter name=loading-mosquitto"
+          ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes $SSH_USER@$SSH_HOST "curl -f http://localhost:9001 || true"
+
+      - name: Verify deployment
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+        run: |
+          ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes $SSH_USER@$SSH_HOST "docker ps --filter name=loading-mosquitto"

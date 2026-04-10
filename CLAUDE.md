@@ -1,53 +1,29 @@
 # loading-mosquitto
 
-## Service Purpose
+MQTT broker for IoT messaging.
 
-Mosquitto is an open-source MQTT broker for lightweight messaging between IoT devices.
+## Deploy
 
-## Environment
+**MANDATORY: Use GitHub Actions CI/CD only. Never manual SSH deploy.**
 
-- Deployment: Docker Compose
-- Default image: `eclipse-mosquitto`
-- Ports: `1883` (MQTT), `9001` (WebSocket)
-- Auth: Can set username/password or TLS
+- SSH only for: debugging, reading logs, health checks
+- Resource limits: 256M memory, 0.25 CPU
+- Log rotation: max-size 10m, max-file 3
 
-## Configuration
+## Config
 
-### Environment Variables
-
-| Variable | Purpose | Example |
-|----------|---------|---------|
-| `MOSQUITTO_PORT` | MQTT port | `1883` |
-| `MOSQUITTO_WS_PORT` | WebSocket port | `9001` |
-
-### Volumes
-
-- `./config/mosquitto.conf` - Configuration file
-- `./data` - Persistent data
-- `./log` - Logs
+- Ports: 1883 (MQTT), 9001 (WebSocket)
+- Auth: username/password or TLS
 
 ## Dependencies
 
-### Services Used
-- None (standalone)
-
-### Services That Depend On It
-- Node-RED (IoT flow processing)
-- Other services needing MQTT
-
-## Resources
-
-- Dev-Standards: https://github.com/loadingcloud001/dev-standards/blob/main/RESOURCES.md
-- Mosquitto Docs: https://mosquitto.org/documentation/
+- Node-RED (uses MQTT)
 
 ## Secrets
 
-MQTT password file encrypted in dev-standards `.secrets/`:
-- `mosquitto.age` - MQTT credentials
+Encrypted in dev-standards `.secrets/mosquitto.age`
 
-## Deployment Checklist
+## Resources
 
-- [ ] Set up MQTT authentication
-- [ ] Configure TLS (optional)
-- [ ] Test connection
-- [ ] Set up Node-RED connection
+- [Dev-Standards](https://github.com/loadingcloud001/dev-standards)
+- [Mosquitto Docs](https://mosquitto.org/documentation/)
