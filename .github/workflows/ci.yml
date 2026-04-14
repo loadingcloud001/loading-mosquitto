@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Validate docker-compose config
+      - name: Validate docker compose config
         run: |
           docker compose -f deploy/docker-compose.yml config --quiet
           echo "docker-compose.yml is valid"
