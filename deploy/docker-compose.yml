@@ -13,9 +13,15 @@ services:
       - ./data:/mosquitto/data
       - ./log:/mosquitto/log
     networks:
-      - cmp-network
+      - nginx-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9001"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
 networks:
-  cmp-network:
-    name: cmp-network
+  nginx-network:
+    name: nginx-network
     external: true
